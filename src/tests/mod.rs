@@ -1,6 +1,10 @@
 #![cfg(test)]
 
+mod expression;
+
 mod lexer {
+    use std::rc::Rc;
+
     use crate::{lexer::Lexer, token::Token};
 
     #[test]
@@ -12,11 +16,20 @@ mod lexer {
         assert_eq!(Token::RParen, lexer.next().unwrap());
         assert_eq!(Token::LBracket, lexer.next().unwrap());
         assert_eq!(Token::RBracket, lexer.next().unwrap());
-        assert_eq!(Token::Ident("abc".to_string()), lexer.next().unwrap());
-        assert_eq!(Token::Int(1234), lexer.next().unwrap());
-        assert_eq!(Token::Ident("xcvxcgf".to_string()), lexer.next().unwrap());
-        assert_eq!(Token::Str("xyz".to_string()), lexer.next().unwrap());
-        assert_eq!(Token::Str("".to_string()), lexer.next().unwrap());
+        assert_eq!(
+            Token::Ident(Rc::new("abc".to_string())),
+            lexer.next().unwrap()
+        );
+        assert_eq!(Token::IntLiteral(1234), lexer.next().unwrap());
+        assert_eq!(
+            Token::Ident(Rc::new("xcvxcgf".to_string())),
+            lexer.next().unwrap()
+        );
+        assert_eq!(
+            Token::Str(Rc::new("xyz".to_string())),
+            lexer.next().unwrap()
+        );
+        assert_eq!(Token::Str(Rc::new("".to_string())), lexer.next().unwrap());
         assert_eq!(Some(Token::EOF), lexer.next());
         assert_eq!(None, lexer.next());
     }
@@ -24,9 +37,9 @@ mod lexer {
     #[test]
     fn test_number_tokens() {
         let tests = vec![
-            ("123.4", Token::Double(123.4)),
-            ("1", Token::Int(1)),
-            ("100", Token::Int(100)),
+            ("123.4", Token::DoubleLiteral(123.4)),
+            ("1", Token::IntLiteral(1)),
+            ("100", Token::IntLiteral(100)),
         ]
         .into_iter();
 

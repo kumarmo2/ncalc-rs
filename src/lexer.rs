@@ -1,7 +1,10 @@
 #![allow(dead_code)]
 
+use std::rc::Rc;
+
 use crate::token::Token;
 
+#[derive(Debug)]
 pub(crate) struct Lexer {
     source: Vec<u8>,
     read_position: Option<usize>,
@@ -25,15 +28,22 @@ impl Lexer {
             0 => None,
             _ => Some(0),
         };
-        Self {
+        let to_return = Self {
             source,
             read_position,
             last_position,
             peek_position,
             eof_returned: false,
-        }
+        };
+        to_return
     }
 
+    pub(crate) fn peek_char(&mut self) -> Option<u8> {
+        match self.read_position {
+            Some(read_position) => Some(self.source[read_position]),
+            None => None,
+        }
+    }
     fn read_char(&mut self) {
         let Some(peek_position) = self.peek_position else {
             self.read_position = None;
@@ -61,7 +71,7 @@ impl Lexer {
     }
 
     fn get_integer_token(slice: &[u8]) -> Token {
-        return Token::Int(
+        return Token::IntLiteral(
             i64::from_str_radix(
                 String::from_utf8(slice.iter().map(|x| *x).collect())
                     .unwrap()
@@ -72,7 +82,7 @@ impl Lexer {
         );
     }
     fn get_double_token(slice: &[u8]) -> Token {
-        Token::Double(
+        Token::DoubleLiteral(
             String::from_utf8(slice.iter().map(|x| *x).collect())
                 .unwrap()
                 .parse::<f64>()
@@ -126,7 +136,7 @@ impl Lexer {
 
             let ch = self.source[read_position];
             if ch == b'"' {
-                break Token::Str(String::from_utf8(chars).unwrap());
+                break Token::Str(Rc::new(String::from_utf8(chars).unwrap()));
             }
 
             if ch == b'\\' {
@@ -282,7 +292,7 @@ impl Iterator for Lexer {
                     "or" => Token::Or,
                     "true" => Token::True,
                     "false" => Token::False,
-                    _ => Token::Ident(identifier),
+                    _ => Token::Ident(Rc::new(identifier)),
                 }
             }
             b'0'..=b'9' => self.read_number(read_position),
