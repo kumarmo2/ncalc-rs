@@ -48,5 +48,6 @@ pub(crate) enum Token {
 
     Or,         // 'or'
     DoublePipe, // '||'
+    EOF,
     Illegal,
 }

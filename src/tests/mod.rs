@@ -5,7 +5,7 @@ mod lexer {
 
     #[test]
     fn test_tokens() {
-        let input = "()[]  abc 1234 xcvxcgf";
+        let input = "()[]  abc 1234 xcvxcgf \"xyz\" \"\"  ";
         let mut lexer = Lexer::from_input(input);
 
         assert_eq!(Token::LParen, lexer.next().unwrap());
@@ -15,6 +15,10 @@ mod lexer {
         assert_eq!(Token::Ident("abc".to_string()), lexer.next().unwrap());
         assert_eq!(Token::Int(1234), lexer.next().unwrap());
         assert_eq!(Token::Ident("xcvxcgf".to_string()), lexer.next().unwrap());
+        assert_eq!(Token::Str("xyz".to_string()), lexer.next().unwrap());
+        assert_eq!(Token::Str("".to_string()), lexer.next().unwrap());
+        assert_eq!(Some(Token::EOF), lexer.next());
+        assert_eq!(None, lexer.next());
     }
 
     #[test]
@@ -30,5 +34,12 @@ mod lexer {
             let mut lexer = Lexer::from_input(input);
             assert_eq!(expected, lexer.next().unwrap());
         }
+    }
+
+    #[test]
+    fn test_empty() {
+        let input = "";
+        let mut lexer = Lexer::from_input(input);
+        assert_eq!(Token::EOF, lexer.next().unwrap());
     }
 }

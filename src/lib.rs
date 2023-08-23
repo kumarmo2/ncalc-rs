@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 
+pub(crate) mod expression;
 pub(crate) mod lexer;
+pub(crate) mod parser;
 pub(crate) mod tests;
 pub(crate) mod token;
 

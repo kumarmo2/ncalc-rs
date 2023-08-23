@@ -5,14 +5,18 @@ use crate::token::Token;
 pub(crate) struct Lexer {
     source: Vec<u8>,
     read_position: Option<usize>,
-    last_position: usize,
+    last_position: Option<usize>,
     peek_position: Option<usize>,
+    eof_returned: bool,
 }
 
 impl Lexer {
     pub(crate) fn from_input(input: &str) -> Self {
         let source: Vec<u8> = input.bytes().collect();
-        let last_position = source.len() - 1;
+        let last_position = match source.len() {
+            n if n > 0 => Some(n - 1),
+            _ => None,
+        };
         let peek_position = match source.len() {
             0 | 1 => None,
             _ => Some(1),
@@ -26,6 +30,7 @@ impl Lexer {
             read_position,
             last_position,
             peek_position,
+            eof_returned: false,
         }
     }
 
@@ -35,7 +40,8 @@ impl Lexer {
             return;
         };
         std::mem::swap(&mut self.read_position, &mut self.peek_position);
-        if peek_position >= self.last_position {
+        // this unwrap should be safe.
+        if peek_position >= self.last_position.unwrap() {
             self.peek_position = None;
         } else {
             self.peek_position = Some(peek_position + 1)
@@ -110,6 +116,41 @@ impl Lexer {
         }
     }
 
+    fn read_string(&mut self) -> Token {
+        let mut chars: Vec<u8> = vec![];
+        let token = loop {
+            self.read_char();
+            let Some(read_position) = self.read_position else {
+                        return Token::Illegal
+            };
+
+            let ch = self.source[read_position];
+            if ch == b'"' {
+                break Token::Str(String::from_utf8(chars).unwrap());
+            }
+
+            if ch == b'\\' {
+                let Some(peek_position) = self.peek_position else {
+                            break Token::Illegal
+                };
+                let next_char = self.source[peek_position];
+                let next_char = match next_char {
+                    b'"' => b'"',
+                    b'n' => b'\n',
+                    b't' => b'\x09',
+                    b'r' => b'\x0d',
+                    b'\\' => b'\x5c',
+                    _ => todo!("expected valid escape sequence, but found {}", next_char),
+                };
+                chars.push(next_char);
+                self.read_char();
+                continue;
+            }
+            chars.push(ch);
+        };
+        token
+    }
+
     fn read_identifier(&mut self, read_position: usize) -> String {
         loop {
             match self.peek_position {
@@ -145,7 +186,15 @@ impl Iterator for Lexer {
     fn next(&mut self) -> Option<Self::Item> {
         self.skip_whitespaces();
         let Some(read_position) = self.read_position else {
-            return None;
+            match self.eof_returned {
+                false => {
+                    self.eof_returned = true;
+                    return Some(Token::EOF);
+                },
+                    true => {
+                    return None;
+                }
+            }
         };
 
         let token = match self.source[read_position] {
@@ -157,6 +206,7 @@ impl Iterator for Lexer {
             b'-' => Token::Minus,
             b'*' => Token::Asterisk,
             b'/' => Token::Slash,
+            b'%' => Token::Percent,
             b'=' => match self.peek_position {
                 // There is no assign operator i.e '=' in expressions.
                 None => Token::Illegal,
@@ -236,6 +286,8 @@ impl Iterator for Lexer {
                 }
             }
             b'0'..=b'9' => self.read_number(read_position),
+            b'"' => self.read_string(),
+            // TODO: handle datetimes
             _ => Token::Illegal,
         };
         self.read_char();
