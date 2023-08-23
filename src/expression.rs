@@ -9,6 +9,7 @@ pub(crate) enum Expression {
     Double(f64),
     Bool(bool),
     Ident(Rc<String>),
+    Str(Rc<String>),
     PrefixExpression {
         operator: Token,
         expression: Box<Expression>,

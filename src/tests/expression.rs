@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{expression::Expression, lexer::Lexer, parser::Parser, token::Token};
 
 #[test]
@@ -11,6 +13,10 @@ fn test_basic_expressions() {
                 operator: Token::Minus,
                 expression: Box::new(Expression::Int(12)),
             },
+        ),
+        (
+            "\"m o_hit2\"",
+            Expression::Str(Rc::new("m o_hit2".to_string())),
         ),
     ]
     .into_iter();

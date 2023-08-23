@@ -86,6 +86,7 @@ impl Parser {
             Token::False => Expression::Bool(false),
             Token::LBracket => self.parse_bracket_ident_expression()?,
             Token::LParen => self.parse_grouped_expression()?,
+            Token::StringLiteral(string) => Expression::Str(string.clone()),
             Token::Minus | Token::Not | Token::Bang => self.parse_prefix_expression()?,
             _ => todo!(),
         };

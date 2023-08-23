@@ -26,10 +26,13 @@ mod lexer {
             lexer.next().unwrap()
         );
         assert_eq!(
-            Token::Str(Rc::new("xyz".to_string())),
+            Token::StringLiteral(Rc::new("xyz".to_string())),
             lexer.next().unwrap()
         );
-        assert_eq!(Token::Str(Rc::new("".to_string())), lexer.next().unwrap());
+        assert_eq!(
+            Token::StringLiteral(Rc::new("".to_string())),
+            lexer.next().unwrap()
+        );
         assert_eq!(Some(Token::EOF), lexer.next());
         assert_eq!(None, lexer.next());
     }

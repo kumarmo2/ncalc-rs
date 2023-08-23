@@ -11,7 +11,7 @@ pub(crate) enum Token {
     DoubleLiteral(f64),
     True,
     False,
-    Str(Rc<String>),
+    StringLiteral(Rc<String>),
     // TODO: this also should be wrapped in Rc.
     DateTime(String),
 

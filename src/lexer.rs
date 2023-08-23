@@ -136,7 +136,7 @@ impl Lexer {
 
             let ch = self.source[read_position];
             if ch == b'"' {
-                break Token::Str(Rc::new(String::from_utf8(chars).unwrap()));
+                break Token::StringLiteral(Rc::new(String::from_utf8(chars).unwrap()));
             }
 
             if ch == b'\\' {
