@@ -1,11 +1,12 @@
 #![allow(dead_code)]
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Token {
     // Data Types
-    Int(String),
-    Double(String),
-    Bool(String),
+    Int(i64),
+    Double(f64),
+    True,
+    False,
     Str(String),
     DateTime(String),
 

@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 pub(crate) mod lexer;
+pub(crate) mod tests;
 pub(crate) mod token;
 
 pub struct MathematicalExpression {
