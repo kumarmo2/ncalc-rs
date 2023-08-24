@@ -113,6 +113,9 @@ fn test_basic_infix_expressions() {
                 arguments: vec![Box::new(Expression::Str(Rc::new("foo".to_string())))],
             },
         ),
+        ("[x]", Expression::Ident(Rc::new("x".to_string()))),
+        ("[x_]", Expression::Ident(Rc::new("x_".to_string()))),
+        ("[x1212_]", Expression::Ident(Rc::new("x1212_".to_string()))),
     ]
     .into_iter();
 

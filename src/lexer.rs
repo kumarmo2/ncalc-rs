@@ -171,7 +171,7 @@ impl Lexer {
                     .unwrap();
                 }
                 Some(peek_position) => match self.source[peek_position] {
-                    b'a'..=b'z' | b'A'..=b'Z' => {
+                    b'a'..=b'z' | b'A'..=b'Z' | b'_' | b'0'..=b'9' => {
                         self.read_char();
                         continue;
                     }
