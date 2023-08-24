@@ -1,5 +1,6 @@
 #![cfg(test)]
 
+mod evaluator;
 mod expression;
 
 mod lexer {

@@ -1,9 +1,11 @@
 use std::{collections::HashMap, rc::Rc};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub(crate) struct Context {
     _inner: Rc<HashMap<String, Object>>,
 }
+
+impl Context {}
 
 #[derive(Debug, Clone)]
 pub(crate) enum Object {

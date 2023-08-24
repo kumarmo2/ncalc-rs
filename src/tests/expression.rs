@@ -19,6 +19,13 @@ fn test_basic_expressions() {
             Expression::Str(Rc::new("m o_hit2".to_string())),
         ),
         ("(4)", Expression::Int(4)),
+        (
+            "!true",
+            Expression::PrefixExpression {
+                operator: Token::Bang,
+                expression: Box::new(Expression::Bool(true)),
+            },
+        ),
     ]
     .into_iter();
     for (input, expected) in tests {
