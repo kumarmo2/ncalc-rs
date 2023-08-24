@@ -24,6 +24,7 @@ pub(crate) enum Token {
 
     LBracket, // '['
     RBracket, // ']'
+    Comma,
 
     // Logical Negation
     Bang, // !

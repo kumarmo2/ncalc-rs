@@ -19,6 +19,11 @@ pub(crate) enum Expression {
         left: Box<Expression>,
         right: Box<Expression>,
     },
+    CallExpression {
+        function: Box<Expression>, // For ncalc, this would always be a Function name.
+        // Had it been a case of full-fledged language, it could have been an inline function.
+        arguments: Vec<Box<Expression>>,
+    },
 }
 
 #[derive(Debug)]

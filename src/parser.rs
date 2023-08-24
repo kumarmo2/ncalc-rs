@@ -53,7 +53,8 @@ impl Parser {
         self.curr_token = self.next_token.clone();
         self.next_token = match self._lexer.next() {
             Some(token) => token,
-            None => return Err(ParseExpressionError::UnexpectedEnd),
+            // None => return Err(ParseExpressionError::UnexpectedEnd),
+            None => Token::EOF,
         };
         Ok(())
     }
@@ -95,6 +96,27 @@ impl Parser {
         })
     }
 
+    fn parse_function_call_expression(
+        &mut self,
+        function: Expression,
+    ) -> Result<Expression, ParseExpressionError> {
+        self.advance_token()?; // curr_token is Token::LParen.
+        let mut args = vec![];
+        while self.curr_token != Token::RParen {
+            let arg = self.parse_expression(Precedence::Lowest)?;
+            args.push(Box::new(arg));
+            self.advance_token()?;
+            if let Token::Comma = self.curr_token.clone() {
+                self.advance_token()?;
+            }
+        }
+        self.advance_token()?;
+        Ok(Expression::CallExpression {
+            function: Box::new(function),
+            arguments: args,
+        })
+    }
+
     fn parse_expression(
         &mut self,
         precedence: Precedence,
@@ -106,6 +128,7 @@ impl Parser {
             Token::False => Expression::Bool(false),
             Token::LBracket => self.parse_bracket_ident_expression()?,
             Token::LParen => self.parse_grouped_expression()?,
+            Token::Ident(ident) => Expression::Ident(ident.clone()),
             Token::StringLiteral(string) => Expression::Str(string.clone()),
             Token::Minus | Token::Not | Token::Bang => self.parse_prefix_expression()?,
             _ => {
@@ -132,6 +155,7 @@ impl Parser {
                 | Token::LessThanEqualTo
                 | Token::GreaterThan
                 | Token::GreaterThanEqualTo => self.parse_infix_expression(left_expression)?,
+                Token::LParen => self.parse_function_call_expression(left_expression)?,
                 _ => unimplemented!(),
             }
         }

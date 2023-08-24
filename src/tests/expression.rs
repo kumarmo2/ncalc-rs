@@ -79,6 +79,40 @@ fn test_basic_infix_expressions() {
                 }),
             },
         ),
+        (
+            "println()",
+            Expression::CallExpression {
+                function: Box::new(Expression::Ident(Rc::new("println".to_string()))),
+                arguments: vec![],
+            },
+        ),
+        (
+            "add(1, 2)",
+            Expression::CallExpression {
+                function: Box::new(Expression::Ident(Rc::new("add".to_string()))),
+                arguments: vec![Box::new(Expression::Int(1)), Box::new(Expression::Int(2))],
+            },
+        ),
+        (
+            "add(-1, 2)",
+            Expression::CallExpression {
+                function: Box::new(Expression::Ident(Rc::new("add".to_string()))),
+                arguments: vec![
+                    Box::new(Expression::PrefixExpression {
+                        operator: Token::Minus,
+                        expression: Box::new(Expression::Int(1)),
+                    }),
+                    Box::new(Expression::Int(2)),
+                ],
+            },
+        ),
+        (
+            "println(\"foo\")",
+            Expression::CallExpression {
+                function: Box::new(Expression::Ident(Rc::new("println".to_string()))),
+                arguments: vec![Box::new(Expression::Str(Rc::new("foo".to_string())))],
+            },
+        ),
     ]
     .into_iter();
 

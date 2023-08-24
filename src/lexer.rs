@@ -284,6 +284,7 @@ impl Iterator for Lexer {
                     _ => Token::Illegal,
                 },
             },
+            b',' => Token::Comma,
             b'a'..=b'z' | b'A'..=b'Z' => {
                 let identifier = self.read_identifier(read_position);
                 match identifier.as_str() {
