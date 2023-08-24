@@ -28,11 +28,16 @@ impl Parser {
         })
     }
 
+    fn peek_next(&self) -> &Token {
+        &self.next_token
+    }
+
     pub(crate) fn parse(&mut self) -> Result<Expression, ParseExpressionError> {
         self.parse_expression(Precedence::Lowest)
     }
 
     fn parse_grouped_expression(&mut self) -> Result<Expression, ParseExpressionError> {
+        self.advance_token()?;
         let expression = self.parse_expression(Precedence::Lowest)?;
         self.advance_token()?;
         match &self.curr_token {
@@ -75,11 +80,26 @@ impl Parser {
         }
     }
 
+    fn parse_infix_expression(
+        &mut self,
+        left: Expression,
+    ) -> Result<Expression, ParseExpressionError> {
+        let operator = self.curr_token.clone();
+        self.advance_token()?;
+
+        let right = self.parse_expression(operator.get_precedence())?;
+        Ok(Expression::InfixExpression {
+            operator,
+            left: Box::new(left),
+            right: Box::new(right),
+        })
+    }
+
     fn parse_expression(
         &mut self,
         precedence: Precedence,
     ) -> Result<Expression, ParseExpressionError> {
-        let left_expression = match self.curr_token.clone() {
+        let mut left_expression = match self.curr_token.clone() {
             Token::IntLiteral(int) => Expression::Int(int),
             Token::DoubleLiteral(double) => Expression::Double(double),
             Token::True => Expression::Bool(true),
@@ -88,8 +108,33 @@ impl Parser {
             Token::LParen => self.parse_grouped_expression()?,
             Token::StringLiteral(string) => Expression::Str(string.clone()),
             Token::Minus | Token::Not | Token::Bang => self.parse_prefix_expression()?,
-            _ => todo!(),
+            _ => {
+                return Err(ParseExpressionError::UnexpectedToken {
+                    token: self.curr_token.clone(),
+                })
+            }
         };
+
+        while *self.peek_next() != Token::EOF
+            && self.peek_next().get_precedence().value() > precedence.value()
+        {
+            self.advance_token()?;
+            left_expression = match self.curr_token.clone() {
+                Token::Plus
+                | Token::Minus
+                | Token::Asterisk
+                | Token::Slash
+                | Token::Percent
+                | Token::Equals
+                | Token::NotEquals
+                | Token::NotEqualsAngleBrackets
+                | Token::LessThan
+                | Token::LessThanEqualTo
+                | Token::GreaterThan
+                | Token::GreaterThanEqualTo => self.parse_infix_expression(left_expression)?,
+                _ => unimplemented!(),
+            }
+        }
         Ok(left_expression)
     }
 }

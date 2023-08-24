@@ -14,6 +14,11 @@ pub(crate) enum Expression {
         operator: Token,
         expression: Box<Expression>,
     },
+    InfixExpression {
+        operator: Token,
+        left: Box<Expression>,
+        right: Box<Expression>,
+    },
 }
 
 #[derive(Debug)]
@@ -23,6 +28,9 @@ pub(crate) enum ParseExpressionError {
     ExpectedXFoundY {
         expected: &'static str,
         found: Token,
+    },
+    UnexpectedToken {
+        token: Token,
     },
 }
 
