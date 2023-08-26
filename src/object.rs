@@ -5,9 +5,19 @@ pub(crate) struct Context {
     _inner: Rc<HashMap<String, Object>>,
 }
 
-impl Context {}
+impl Context {
+    pub(crate) fn get(&self, key: &str) -> Option<Object> {
+        self._inner.get(key).map(|obj| obj.clone())
+    }
 
-#[derive(Debug, Clone)]
+    pub(crate) fn from_map(map: HashMap<String, Object>) -> Self {
+        Self {
+            _inner: Rc::new(map),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum Object {
     Int(i64),
     Double(f64),

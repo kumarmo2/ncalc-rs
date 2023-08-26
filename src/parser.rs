@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use crate::{
     expression::{Expression, ParseExpressionError, Precedence},
     lexer::Lexer,
@@ -72,13 +70,17 @@ impl Parser {
     fn parse_bracket_ident_expression(&mut self) -> Result<Expression, ParseExpressionError> {
         let _l_bracket_token = self.curr_token.clone();
         let _ = self.advance_token()?;
-        match &self.curr_token {
-            Token::Ident(ident) => Ok(Expression::Ident(ident.clone())),
-            _ => Err(ParseExpressionError::ExpectedXFoundY {
-                expected: "Identifier",
-                found: self.curr_token.clone(),
-            }),
-        }
+        let x = match &self.curr_token {
+            Token::Ident(ident) => Ok(Expression::Ident(ident.clone()))?,
+            _ => {
+                return Err(ParseExpressionError::ExpectedXFoundY {
+                    expected: "Identifier",
+                    found: self.curr_token.clone(),
+                })
+            }
+        };
+        self.advance_token()?;
+        Ok(x)
     }
 
     fn parse_infix_expression(
@@ -154,7 +156,9 @@ impl Parser {
                 | Token::LessThan
                 | Token::LessThanEqualTo
                 | Token::GreaterThan
-                | Token::GreaterThanEqualTo => self.parse_infix_expression(left_expression)?,
+                | Token::GreaterThanEqualTo
+                | Token::Or
+                | Token::DoublePipe => self.parse_infix_expression(left_expression)?,
                 Token::LParen => self.parse_function_call_expression(left_expression)?,
                 _ => unimplemented!(),
             }

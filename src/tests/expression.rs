@@ -75,6 +75,18 @@ fn test_basic_infix_expressions() {
             },
         ),
         (
+            "1 + ([x] - 3)",
+            Expression::InfixExpression {
+                operator: Token::Plus,
+                left: Box::new(Expression::Int(1)),
+                right: Box::new(Expression::InfixExpression {
+                    operator: Token::Minus,
+                    left: Box::new(Expression::Ident(Rc::new("x".to_string()))),
+                    right: Box::new(Expression::Int(3)),
+                }),
+            },
+        ),
+        (
             "1.23 + (2 * 3)",
             Expression::InfixExpression {
                 operator: Token::Plus,

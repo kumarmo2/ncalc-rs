@@ -1,4 +1,6 @@
 #![allow(dead_code, unused_variables)]
+use std::rc::Rc;
+
 use crate::{
     expression::{Expression, ParseExpressionError},
     lexer::Lexer,
@@ -19,6 +21,12 @@ pub(crate) enum EvalError {
     },
     ParseExpressionError {
         error: ParseExpressionError,
+    },
+    ReferenceNotFound(String),
+    UnExpectedOperatorOperandFound {
+        operator: Token,
+        left: Object,
+        right: Object,
     },
 }
 
@@ -43,12 +51,147 @@ fn eval(expression: &Expression, context: Context) -> Result<Object, EvalError> 
             operator,
             left,
             right,
-        } => todo!(),
+        } => eval_infix_expression(operator.clone(), left, right, context),
         Expression::PrefixExpression {
             operator,
             expression,
         } => eval_prefix_expression(operator.clone(), expression, context),
-        _ => todo!("sdfsdf"),
+        Expression::CallExpression {
+            function,
+            arguments,
+        } => todo!(),
+        Expression::Ident(ident) => eval_ident(ident, context.clone()),
+        _ => unimplemented!(),
+    }
+}
+
+fn eval_numeric_infix_expression(
+    operator: Token,
+    left: &Expression,
+    right: &Expression,
+    context: Context,
+) -> Result<Object, EvalError> {
+    let left = eval(left, context.clone())?;
+    let right = eval(right, context.clone())?;
+    let (left, right) = match operator.clone() {
+        Token::Plus
+        | Token::Minus
+        | Token::Asterisk
+        | Token::Slash
+        | Token::LessThan
+        | Token::LessThanEqualTo
+        | Token::GreaterThan
+        | Token::GreaterThanEqualTo
+        | Token::Percent => match (&left, &right) {
+            (Object::Int(left), Object::Int(right)) => (*left as f64, *right as f64),
+            (Object::Double(left), Object::Double(right)) => (*left, *right),
+            (Object::Double(left), Object::Int(right)) => (*left, *right as f64),
+            (Object::Int(left), Object::Double(right)) => (*left as f64, *right),
+            _ => {
+                return Err(EvalError::UnExpectedOperatorOperandFound {
+                    operator,
+                    left,
+                    right,
+                })
+            }
+        },
+        _ => unimplemented!(),
+    };
+
+    Ok(apply_operator_to_float_values(operator, left, right))
+}
+
+fn apply_operator_to_float_values(operator: Token, left: f64, right: f64) -> Object {
+    match operator.clone() {
+        Token::Plus => Object::Double(left + right),
+        Token::Minus => Object::Double(left - right),
+        Token::Asterisk => Object::Double(left * right),
+        Token::Slash => Object::Double(left / right),
+        Token::LessThan => Object::Bool(left < right),
+        Token::LessThanEqualTo => Object::Bool(left <= right),
+        Token::GreaterThan => Object::Bool(left > right),
+        Token::GreaterThanEqualTo => Object::Bool(left >= right),
+        Token::Equals => Object::Bool(left == right),
+        Token::NotEquals => Object::Bool(left != right),
+        Token::Percent => Object::Double(left % right),
+        _ => unimplemented!(),
+    }
+}
+
+fn eval_infix_expression_where_operand_can_be_numerics_or_bools(
+    operator: Token,
+    left: &Expression,
+    right: &Expression,
+    context: Context,
+) -> Result<Object, EvalError> {
+    let left = eval(left, context.clone())?;
+    let right = eval(right, context.clone())?;
+    match (&left, &right) {
+        (Object::Int(left), Object::Int(right)) => {
+            let left = *left as f64;
+            let right = *right as f64;
+            Ok(apply_operator_to_float_values(operator, left, right))
+        }
+        (Object::Double(left), Object::Double(right)) => {
+            let left = *left;
+            let right = *right;
+            Ok(apply_operator_to_float_values(operator, left, right))
+        }
+        (Object::Double(left), Object::Int(right)) => {
+            let left = *left;
+            let right = *right as f64;
+            Ok(apply_operator_to_float_values(operator, left, right))
+        }
+        (Object::Int(left), Object::Double(right)) => {
+            let left = *left as f64;
+            let right = *right;
+            Ok(apply_operator_to_float_values(operator, left, right))
+        }
+        (Object::Bool(left), Object::Bool(right)) => match operator {
+            Token::Equals => Ok(Object::Bool(left == right)),
+            Token::NotEquals => Ok(Object::Bool(left != right)),
+            Token::Or | Token::DoublePipe => Ok(Object::Bool(*left || *right)),
+            _ => todo!(),
+        },
+        _ => {
+            return Err(EvalError::UnExpectedOperatorOperandFound {
+                operator,
+                left,
+                right,
+            })
+        }
+    }
+}
+
+fn eval_infix_expression(
+    operator: Token,
+    left: &Expression,
+    right: &Expression,
+    context: Context,
+) -> Result<Object, EvalError> {
+    match operator.clone() {
+        Token::Plus
+        | Token::Minus
+        | Token::Asterisk
+        | Token::Slash
+        | Token::LessThan
+        | Token::LessThanEqualTo
+        | Token::GreaterThan
+        | Token::GreaterThanEqualTo
+        | Token::Percent => eval_numeric_infix_expression(operator, left, right, context),
+        Token::Equals | Token::NotEquals | Token::DoublePipe | Token::Or => {
+            eval_infix_expression_where_operand_can_be_numerics_or_bools(
+                operator, left, right, context,
+            )
+        }
+        _ => todo!(),
+    }
+}
+
+fn eval_ident(ident: &Rc<String>, context: Context) -> Result<Object, EvalError> {
+    match context.get(ident.as_ref()) {
+        Some(object) => Ok(object),
+        None => Err(EvalError::ReferenceNotFound(ident.as_ref().to_owned())),
     }
 }
 

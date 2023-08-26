@@ -61,7 +61,7 @@ pub(crate) enum Token {
 impl Token {
     pub(crate) fn get_precedence(&self) -> Precedence {
         match self {
-            Token::Equals | Token::NotEquals => Precedence::Equals,
+            Token::Equals | Token::NotEquals | Token::DoublePipe | Token::Or => Precedence::Equals,
             Token::LessThan
             | Self::LessThanEqualTo
             | Token::GreaterThanEqualTo
