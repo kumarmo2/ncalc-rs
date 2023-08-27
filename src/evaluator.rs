@@ -19,8 +19,19 @@ pub(crate) enum EvalError {
         expected: &'static str,
         found: Token,
     },
+    ExpectedExpressionXFoundY {
+        expected: &'static str,
+        found: Expression,
+    },
     ParseExpressionError {
         error: ParseExpressionError,
+    },
+    UnExpectedTokenFound {
+        token: Token,
+    },
+    MissMatchFunctionArguements {
+        expected: u8,
+        found: u8,
     },
     ReferenceNotFound(String),
     UnExpectedOperatorOperandFound {
@@ -59,9 +70,41 @@ fn eval(expression: &Expression, context: Context) -> Result<Object, EvalError> 
         Expression::CallExpression {
             function,
             arguments,
-        } => todo!(),
+        } => eval_fn_call(function, arguments.as_slice(), context),
         Expression::Ident(ident) => eval_ident(ident, context.clone()),
         _ => unimplemented!(),
+    }
+}
+
+fn eval_fn_call(
+    function_expression: &Expression,
+    arguments: &[Box<Expression>],
+    context: Context,
+) -> Result<Object, EvalError> {
+    let Expression::Ident(function_name) = function_expression else {
+        return Err(EvalError::ExpectedExpressionXFoundY { expected: "function name", found: function_expression.clone() });
+    };
+
+    let _ = match function_name.as_str() {
+        "if" => (),
+        _ => unimplemented!(),
+    };
+
+    if arguments.len() != 3 {
+        return Err(EvalError::MissMatchFunctionArguements {
+            expected: 3,
+            found: arguments.len() as u8,
+        });
+    }
+
+    let condition_evaluated_val = eval(arguments[0].as_ref(), context.clone())?;
+    let Object::Bool(is_true) = condition_evaluated_val else {
+        return Err(EvalError::ExpectedObjectXFoundY { expected: "bool", found: condition_evaluated_val })
+    };
+
+    match is_true {
+        true => eval(arguments[1].as_ref(), context.clone()),
+        false => eval(arguments[2].as_ref(), context.clone()),
     }
 }
 
@@ -184,7 +227,7 @@ fn eval_infix_expression(
                 operator, left, right, context,
             )
         }
-        _ => todo!(),
+        _ => Err(EvalError::UnExpectedTokenFound { token: operator }),
     }
 }
 

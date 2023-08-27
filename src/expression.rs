@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::token::Token;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(crate) enum Expression {
     Nil, // there was no input
     Int(i64),

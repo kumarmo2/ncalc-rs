@@ -163,3 +163,34 @@ fn evaluate_ident_for_bool() {
         evaluator::eval_input(test.to_string(), context).unwrap()
     );
 }
+
+#[test]
+fn evaluate_if_function() {
+    let tests = vec![
+        ("if(true, 1, 3)", Object::Int(1), HashMap::new()),
+        (
+            "if ( [x] >= [y], [x], [y])",
+            Object::Int(12),
+            HashMap::from_iter([
+                ("x".to_string(), Object::Int(12)),
+                ("y".to_string(), Object::Int(10)),
+            ]),
+        ),
+        (
+            "if ( [x] >= [y], if( 3 > 2, 100, 2), [y])",
+            Object::Int(100),
+            HashMap::from_iter([
+                ("x".to_string(), Object::Int(12)),
+                ("y".to_string(), Object::Int(10)),
+            ]),
+        ),
+    ]
+    .into_iter();
+    for (test, expected, map) in tests {
+        let context = Context::from_map(map);
+        assert_eq!(
+            expected,
+            evaluator::eval_input(test.to_string(), context).unwrap()
+        );
+    }
+}
