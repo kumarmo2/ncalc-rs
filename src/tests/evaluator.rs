@@ -11,7 +11,7 @@ fn basic_eval_tests() {
     for (test, expected) in tests {
         assert_eq!(
             expected,
-            evaluator::eval_input(test.to_string(), Context::default()).unwrap()
+            evaluator::eval_input(test, Context::default()).unwrap()
         );
     }
 }
@@ -24,7 +24,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Double(15.0),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 
     let test = "[x] - 5";
@@ -33,7 +33,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Double(5.0),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 
     let test = "[x] * 5";
@@ -42,7 +42,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Double(50.0),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
     let test = "[x] / [y]";
     let mut map = HashMap::new();
@@ -51,7 +51,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Double(5.0),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
     let test = "[x] < [y]";
     let mut map = HashMap::new();
@@ -60,7 +60,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(false),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 
     let test = "[x] <= [y]";
@@ -70,7 +70,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(true),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 
     let test = "[x] <= [y]";
@@ -80,7 +80,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(false),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 
     let test = "[x] > [y]";
@@ -90,7 +90,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(true),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 
     let test = "[x] >= [y]";
@@ -100,7 +100,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(true),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 
     let test = "[x] >= [y]";
@@ -110,7 +110,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(false),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 
     let test = "[x] == [y]";
@@ -120,7 +120,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(false),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
     let test = "[x] == [y]";
     let mut map = HashMap::new();
@@ -129,7 +129,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(true),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
     let test = "[x] || [y]";
     let mut map = HashMap::new();
@@ -138,7 +138,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(false),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
     let test = "[x] or [y]";
     let mut map = HashMap::new();
@@ -147,7 +147,7 @@ fn evaluate_ident_for_expr() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(false),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 }
 
@@ -160,7 +160,7 @@ fn evaluate_ident_for_bool() {
     let context = Context::from_map(map);
     assert_eq!(
         Object::Bool(false),
-        evaluator::eval_input(test.to_string(), context).unwrap()
+        evaluator::eval_input(test, context).unwrap()
     );
 }
 
@@ -188,9 +188,6 @@ fn evaluate_if_function() {
     .into_iter();
     for (test, expected, map) in tests {
         let context = Context::from_map(map);
-        assert_eq!(
-            expected,
-            evaluator::eval_input(test.to_string(), context).unwrap()
-        );
+        assert_eq!(expected, evaluator::eval_input(test, context).unwrap());
     }
 }

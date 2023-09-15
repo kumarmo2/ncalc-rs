@@ -41,8 +41,8 @@ pub(crate) enum EvalError {
     },
 }
 
-pub(crate) fn eval_input(input: String, context: Context) -> Result<Object, EvalError> {
-    let mut parser = Parser::new(Lexer::from_input(input.as_str()))
+pub(crate) fn eval_input(input: &str, context: Context) -> Result<Object, EvalError> {
+    let mut parser = Parser::new(Lexer::from_input(input))
         .map_err(|err| EvalError::ParseExpressionError { error: err })?;
 
     let expression = parser

@@ -18,7 +18,7 @@ impl Context {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum Object {
+pub enum Object {
     Int(i64),
     Double(f64),
     Bool(bool),
