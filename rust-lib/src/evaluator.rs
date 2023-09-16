@@ -10,7 +10,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub(crate) enum EvalError {
+pub enum EvalError {
     ExpectedObjectXFoundY {
         expected: &'static str,
         found: Object,
@@ -41,7 +41,7 @@ pub(crate) enum EvalError {
     },
 }
 
-pub(crate) fn eval_input(input: &str, context: Context) -> Result<Object, EvalError> {
+pub fn eval_input(input: &str, context: Context) -> Result<Object, EvalError> {
     let mut parser = Parser::new(Lexer::from_input(input))
         .map_err(|err| EvalError::ParseExpressionError { error: err })?;
 
@@ -82,7 +82,10 @@ fn eval_fn_call(
     context: Context,
 ) -> Result<Object, EvalError> {
     let Expression::Ident(function_name) = function_expression else {
-        return Err(EvalError::ExpectedExpressionXFoundY { expected: "function name", found: function_expression.clone() });
+        return Err(EvalError::ExpectedExpressionXFoundY {
+            expected: "function name",
+            found: function_expression.clone(),
+        });
     };
 
     let _ = match function_name.as_str() {
@@ -99,7 +102,10 @@ fn eval_fn_call(
 
     let condition_evaluated_val = eval(arguments[0].as_ref(), context.clone())?;
     let Object::Bool(is_true) = condition_evaluated_val else {
-        return Err(EvalError::ExpectedObjectXFoundY { expected: "bool", found: condition_evaluated_val })
+        return Err(EvalError::ExpectedObjectXFoundY {
+            expected: "bool",
+            found: condition_evaluated_val,
+        });
     };
 
     match is_true {

@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::token::Token;
 
 #[derive(Debug, PartialEq, Clone)]
-pub(crate) enum Expression {
+pub enum Expression {
     Nil, // there was no input
     Int(i64),
     Double(f64),
@@ -27,7 +27,7 @@ pub(crate) enum Expression {
 }
 
 #[derive(Debug)]
-pub(crate) enum ParseExpressionError {
+pub enum ParseExpressionError {
     NothingToParse,
     UnexpectedEnd,
     ExpectedXFoundY {

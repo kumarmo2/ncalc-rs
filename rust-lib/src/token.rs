@@ -5,7 +5,7 @@ use std::rc::Rc;
 use crate::expression::Precedence;
 
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) enum Token {
+pub enum Token {
     // Data Types
     IntLiteral(i64),
     DoubleLiteral(f64),

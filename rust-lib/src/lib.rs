@@ -4,10 +4,10 @@
 
 use object::{Context, Object};
 
-pub(crate) mod evaluator;
+pub mod evaluator;
 pub(crate) mod expression;
 pub(crate) mod lexer;
-pub(crate) mod object;
+pub mod object;
 pub(crate) mod parser;
 pub(crate) mod tests;
 pub(crate) mod token;

@@ -1,7 +1,7 @@
 use std::{collections::HashMap, rc::Rc};
 
 #[derive(Debug, Clone, Default)]
-pub(crate) struct Context {
+pub struct Context {
     _inner: Rc<HashMap<String, Object>>,
 }
 
