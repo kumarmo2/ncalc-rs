@@ -9,23 +9,21 @@ use std::ptr;
 pub struct CResult {
     int_result: *const i64,
     float_result: *const f64,
-    bool_result: *const bool,
+    bool_result: *const u8,
     string_result: *const u8,
     error: *const u8,
 }
 
 impl From<Object> for CResult {
     fn from(value: Object) -> Self {
-        match value {
-            Object::Int(int) => {
-                return CResult {
-                    int_result: &int as *const i64,
-                    float_result: ptr::null(),
-                    bool_result: ptr::null(),
-                    string_result: ptr::null(),
-                    error: ptr::null(),
-                };
-            }
+        let result = match value {
+            Object::Int(int) => CResult {
+                int_result: &int as *const i64,
+                float_result: ptr::null(),
+                bool_result: ptr::null(),
+                string_result: ptr::null(),
+                error: ptr::null(),
+            },
             Object::Double(double) => {
                 let result = CResult {
                     int_result: ptr::null(),
@@ -34,12 +32,15 @@ impl From<Object> for CResult {
                     string_result: ptr::null(),
                     error: ptr::null(),
                 };
-                return result;
+                result
             }
             Object::Bool(bool) => CResult {
                 int_result: ptr::null(),
                 float_result: ptr::null(),
-                bool_result: &bool as *const bool,
+                bool_result: match bool {
+                    true => &(1 as u8) as *const u8,
+                    false => &(0 as u8) as *const u8,
+                },
                 string_result: ptr::null(),
                 error: ptr::null(),
             },
@@ -47,10 +48,12 @@ impl From<Object> for CResult {
                 int_result: ptr::null(),
                 float_result: ptr::null(),
                 bool_result: ptr::null(),
-                string_result: string.as_ptr(),
+                string_result: unimplemented!("need to return a C-style string from here"),
                 error: ptr::null(),
             },
-        }
+        };
+        println!("result: {:?}", result);
+        result
     }
 }
 
@@ -85,5 +88,6 @@ pub extern "C" fn evaluate(formula: *const c_char) -> CResult {
             }
         }
     };
+    println!("object: {:?}", object);
     CResult::from(object)
 }
