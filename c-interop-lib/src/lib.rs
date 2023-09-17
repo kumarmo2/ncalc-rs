@@ -62,6 +62,12 @@ impl From<Object> for CResult {
 * */
 
 #[no_mangle]
+pub extern "C" fn free_cresult(result: CResult) {
+    // TODO: Need to free correctly the string in `CResult`.
+    println!("free called");
+}
+
+#[no_mangle]
 pub extern "C" fn evaluate(formula: *const c_char) -> CResult {
     let formula: &CStr = unsafe { CStr::from_ptr(formula as *const i8) };
     let formula_str = match formula.to_str() {

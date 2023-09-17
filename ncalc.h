@@ -11,4 +11,6 @@ typedef struct CResult {
   const uint8_t *error;
 } CResult;
 
+void free_cresult(struct CResult result);
+
 struct CResult evaluate(const char *formula);

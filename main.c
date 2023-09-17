@@ -9,23 +9,16 @@ int main() {
   CResult result =  evaluate(c);
   if( result.bool_result != NULL)
   {
-    printf("bool result found: %u", *result.bool_result);
-    return 0;
+    printf("bool result found: %u\n", *result.bool_result);
   }
   if(result.int_result != NULL)
   {
-    printf("int result is not null");
-    return 0;
+    printf("int result is not null\n");
   }
   if(result.float_result != NULL)
   {
     printf("found float result: %f\n", *result.float_result);
-    return 0;
   }
-  if(result.error == NULL) {
-    printf("found error null");
-    return -1;
-  }
-  printf("Hello world\n");
+  free_cresult(result);
   return 0;
 }
