@@ -5,6 +5,7 @@ use std::ffi::{c_char, CStr};
 use std::ptr;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct CResult {
     int_result: *const i64,
     float_result: *const f64,
@@ -16,20 +17,25 @@ pub struct CResult {
 impl From<Object> for CResult {
     fn from(value: Object) -> Self {
         match value {
-            Object::Int(int) => CResult {
-                int_result: &int as *const i64,
-                float_result: ptr::null(),
-                bool_result: ptr::null(),
-                string_result: ptr::null(),
-                error: ptr::null(),
-            },
-            Object::Double(double) => CResult {
-                int_result: ptr::null(),
-                float_result: &double as *const f64,
-                bool_result: ptr::null(),
-                string_result: ptr::null(),
-                error: ptr::null(),
-            },
+            Object::Int(int) => {
+                return CResult {
+                    int_result: &int as *const i64,
+                    float_result: ptr::null(),
+                    bool_result: ptr::null(),
+                    string_result: ptr::null(),
+                    error: ptr::null(),
+                };
+            }
+            Object::Double(double) => {
+                let result = CResult {
+                    int_result: ptr::null(),
+                    float_result: &double as *const f64,
+                    bool_result: ptr::null(),
+                    string_result: ptr::null(),
+                    error: ptr::null(),
+                };
+                return result;
+            }
             Object::Bool(bool) => CResult {
                 int_result: ptr::null(),
                 float_result: ptr::null(),
@@ -64,7 +70,7 @@ pub extern "C" fn evaluate(formula: *const c_char) -> CResult {
                 float_result: ptr::null(),
                 bool_result: ptr::null(),
                 string_result: ptr::null(),
-            }
+            };
         }
     };
     let object = match evaluator::eval_input(formula_str, Context::default()) {
