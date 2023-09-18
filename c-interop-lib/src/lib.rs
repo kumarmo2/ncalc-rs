@@ -25,9 +25,10 @@ impl From<Object> for CResult {
                 error: ptr::null(),
             },
             Object::Double(double) => {
+                let boxed = Box::new(double);
                 let result = CResult {
                     int_result: ptr::null(),
-                    float_result: &double as *const f64,
+                    float_result: Box::into_raw(boxed) as *const f64,
                     bool_result: ptr::null(),
                     string_result: ptr::null(),
                     error: ptr::null(),
@@ -52,7 +53,7 @@ impl From<Object> for CResult {
                 error: ptr::null(),
             },
         };
-        println!("result: {:?}", result);
+        // println!("result: {:?}", result);
         result
     }
 }
@@ -64,6 +65,7 @@ impl From<Object> for CResult {
 #[no_mangle]
 pub extern "C" fn free_cresult(result: CResult) {
     // TODO: Need to free correctly the string in `CResult`.
+    let _ = unsafe { Box::from_raw(result.float_result as *mut f64) };
     println!("free called");
 }
 
@@ -94,6 +96,6 @@ pub extern "C" fn evaluate(formula: *const c_char) -> CResult {
             }
         }
     };
-    println!("object: {:?}", object);
+    // println!("object: {:?}", object);
     CResult::from(object)
 }
