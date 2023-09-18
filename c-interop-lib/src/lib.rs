@@ -17,13 +17,16 @@ pub struct CResult {
 impl From<Object> for CResult {
     fn from(value: Object) -> Self {
         let result = match value {
-            Object::Int(int) => CResult {
-                int_result: &int as *const i64,
-                float_result: ptr::null(),
-                bool_result: ptr::null(),
-                string_result: ptr::null(),
-                error: ptr::null(),
-            },
+            Object::Int(int) => {
+                let boxed = Box::new(int);
+                CResult {
+                    int_result: Box::into_raw(boxed),
+                    float_result: ptr::null(),
+                    bool_result: ptr::null(),
+                    string_result: ptr::null(),
+                    error: ptr::null(),
+                }
+            }
             Object::Double(double) => {
                 let boxed = Box::new(double);
                 let result = CResult {
@@ -65,7 +68,10 @@ impl From<Object> for CResult {
 #[no_mangle]
 pub extern "C" fn free_cresult(result: CResult) {
     // TODO: Need to free correctly the string in `CResult`.
-    let _ = unsafe { Box::from_raw(result.float_result as *mut f64) };
+    unsafe {
+        let _ = Box::from_raw(result.float_result as *mut f64);
+        let _ = Box::from_raw(result.int_result as *mut i64);
+    };
     println!("free called");
 }
 
