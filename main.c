@@ -6,9 +6,17 @@
 // gcc main.c -L ./target/release/ -lc_interop_lib -lm
 // "-lm" tells linker to include the math library when linking your program.
 int main() {
-  char* c = "3   \0";
+  /* char* c = "\"kumarmo2\"   \0"; */
+  char* c = NULL;
   CResult result =  evaluate(c);
-  if( result.bool_result != NULL)
+
+  if(result.error != NULL)
+  {
+    printf("error: %s\n", result.error);
+    free_cresult(result);
+    return 1;
+  }
+  if (result.bool_result != NULL)
   {
     printf("bool result found: %u\n", *result.bool_result);
   }
@@ -21,7 +29,6 @@ int main() {
     printf("found float result: %f\n", *result.float_result);
     float x = 2 + *result.float_result;
     printf("x: %f\n", x);
-
   }
   free_cresult(result);
   return 0;
